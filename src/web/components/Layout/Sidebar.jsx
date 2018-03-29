@@ -13,46 +13,6 @@ import GhostChecker from '~/views/GhostContent/Checker'
 
 const style = require('./Sidebar.scss')
 
-const BASIC_MENU_ITEMS = [
-  {
-    name: 'Dashboard',
-    path: '/dashboard',
-    rule: { res: 'dashboard', op: 'read' },
-    icon: 'dashboard'
-  },
-  {
-    name: 'Modules',
-    path: '/manage',
-    rule: { res: 'modules/list', op: 'read' },
-    icon: 'build'
-  },
-  window.GHOST_ENABLED && {
-    name: 'Version Control',
-    path: 'version-control',
-    rule: { res: 'ghost_content', op: 'read' },
-    icon: 'content_copy',
-    renderSuffix: () => <GhostChecker />
-  },
-  {
-    name: 'Content',
-    path: '/content',
-    rule: { res: 'content', op: 'read' },
-    icon: 'description'
-  },
-  {
-    name: 'Flows',
-    path: '/flows',
-    rule: { res: 'flows', op: 'read' },
-    icon: 'device_hub'
-  },
-  {
-    name: 'Middleware',
-    path: '/middleware',
-    rule: { res: 'middleware', op: 'read' },
-    icon: 'settings'
-  }
-].filter(Boolean)
-
 class Sidebar extends React.Component {
   static contextTypes = {
     router: PropTypes.object.isRequired
@@ -60,11 +20,56 @@ class Sidebar extends React.Component {
 
   state = {
     sidebarOpen: false,
-    sidebarDocked: false
+    sidebarDocked: false,
+    basicMenuItems: []
   }
 
   onSetSidebarOpen = open => {
     this.setState({ sidebarOpen: open })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      basicMenuItems: [
+        {
+          name: 'Dashboard',
+          path: '/dashboard',
+          rule: { res: 'dashboard', op: 'read' },
+          icon: 'dashboard'
+        },
+        {
+          name: 'Modules',
+          path: '/manage',
+          rule: { res: 'modules/list', op: 'read' },
+          icon: 'build'
+        },
+        window.GHOST_ENABLED && {
+          name: 'Version Control',
+          path: 'version-control',
+          rule: { res: 'ghost_content', op: 'read' },
+          icon: 'content_copy',
+          renderSuffix: () => <GhostChecker />
+        },
+        {
+          name: 'Content',
+          path: '/content',
+          rule: { res: 'content', op: 'read' },
+          icon: 'description'
+        },
+        !nextProps.flowEditorDisabled && {
+          name: 'Flows',
+          path: '/flows',
+          rule: { res: 'flows', op: 'read' },
+          icon: 'device_hub'
+        },
+        {
+          name: 'Middleware',
+          path: '/middleware',
+          rule: { res: 'middleware', op: 'read' },
+          icon: 'settings'
+        }
+      ].filter(Boolean)
+    })
   }
 
   componentWillMount() {
@@ -124,7 +129,7 @@ class Sidebar extends React.Component {
       <div className={classnames(style.sidebar, 'bp-sidebar')}>
         <SidebarHeader />
         <ul className="nav">
-          {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
+          {this.state.basicMenuItems.map(this.renderBasicItem)}
           {moduleItems}
           <li className={emptyClassName} />
         </ul>
@@ -150,6 +155,10 @@ class Sidebar extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({ viewMode: state.ui.viewMode, modules: state.modules })
+const mapStateToProps = state => ({
+  viewMode: state.ui.viewMode,
+  modules: state.modules,
+  flowEditorDisabled: state.bot.flowEditorDisabled
+})
 
 export default connect(mapStateToProps)(Sidebar)

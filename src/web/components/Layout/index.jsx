@@ -65,7 +65,7 @@ class Layout extends React.Component {
               <Route exact path="/middleware" component={Middleware} />
               <Route exact path="/content" component={Content} />
               <Route exact path="/version-control" component={GhostContent} />
-              <Route exact path="/flows/:flow?" component={FlowBuilder} />
+              {this.props.flowEditorDisabled || <Route exact path="/flows/:flow?" component={FlowBuilder} />}
               <Route exact path="/modules/:moduleName/:subView?" component={Module} />
               <Route exact path="/notifications" component={Notifications} />
               <Route exact path="/logs" component={Logs} />
@@ -93,7 +93,8 @@ const mapStateToProps = (state, ownProps) => ({
   license: state.license,
   licenseModalOpened: state.ui.licenseModalOpened,
   aboutModalOpened: state.ui.aboutModalOpened,
-  viewMode: state.ui.viewMode
+  viewMode: state.ui.viewMode,
+  flowEditorDisabled: state.bot.flowEditorDisabled
 })
 
 const mapDispatchToProps = dispatch => bindActionCreators({ toggleLicenseModal, viewModeChanged }, dispatch)
